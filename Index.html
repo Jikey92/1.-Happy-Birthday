@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+ <title>Happy Birthday!</title>
+ <style>
+ * {
+ box-sizing: border-box;
+ margin: 0;
+ padding: 0;
+ user-select: none;
+ -webkit-tap-highlight-color: transparent;
+ }
+
+ body {
+ background-color: #05020a;
+ color: #fff;
+ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+ overflow: hidden;
+ width: 100vw;
+ height: 100vh;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ }
+
+ /* Hiệu ứng nền mưa ma trận / sao đêm */
+ #bg-canvas {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ z-index: 1;
+ }
+
+ /* Container chính */
+ .container {
+ position: relative;
+ z-index: 10;
+ width: 100%;
+ max-width: 430px; /* Tối ưu kích thước màn hình iPhone */
+ height: 100%;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+ padding: 20px;
+ text-align: center;
+ }
+
+ /* Màn hình 1: Đếm ngược */
+ .step {
+ display: none;
+ flex-direction: column;
+ align-items: center;
+ justify-content: center;
+ width: 100%;
+ height: 100%;
+ animation: fadeIn 0.8s ease-in-out forwards;
+ }
+
+ .step.active {
+ display: flex;
+ }
+
+ #countdown-text {
+ font-size: 3rem;
+ font-weight: 800;
+ color: #ff3385;
+ text-shadow: 0 0 15px #ff0066, 0 0 30px #ff0066;
+ letter-spacing: 2px;
+ }
+
+ /* Màn hình 2: Nốt nhạc & Gấu Chibi */
+ .bear-card {
+ background: rgba(255, 255, 255, 0.05);
+ border: 1px solid rgba(255, 255, 255, 0.1);
+ backdrop-filter: blur(10px);
+ border-radius: 20px;
+ padding: 30px 20px;
+ box-shadow: 0 8px 32px 0 rgba(255, 105, 180, 0.2);
+ cursor: pointer;
+ transition: transform 0.3s ease;
+ }
+
+ .bear-card:active {
+ transform: scale(0.95);
+ }
+
+ .bear-icon {
+ font-size: 80px;
+ margin-bottom: 15px;
+ animation: pulse 1.5s infinite;
+ }
+
+ .tap-hint {
+ font-size: 0.9rem;
+ color: #ff99c8;
+ margin-top: 10px;
+ opacity: 0.8;
+ }
+
+ /* Màn hình 3: Slideshow ảnh */
+ .card-slider {
+ width: 100%;
+ background: rgba(20, 10, 30, 0.85);
+ border: 1px solid rgba(255, 105, 180, 0.3);
+ border-radius: 24px;
+ padding: 20px;
+ box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+ }
+
+ .message-box {
+ font-size: 1.1rem;
+ font-weight: 600;
+ color: #ffa6c9;
+ margin-bottom: 20px;
+ min-height: 50px;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ }
+
+ .photo-grid {
+ display: grid;
+ grid-template-columns: 1fr 1fr;
+ gap: 12px;
+ margin-bottom: 20px;
+ }
+
+ .photo-frame {
+ width: 100%;
+ aspect-ratio: 3/4;
+ border-radius: 12px;
+ overflow: hidden;
+ border: 2px solid #ff66a3;
+ box-shadow: 0 4px 15px rgba(255, 102, 163, 0.3);
+ }
+
+ .photo-frame img {
+ width: 100%;
+ height: 100%;
+ object-fit: cover;
+ }
+
+ .next-btn {
+ background: linear-gradient(45deg, #ff0066, #ff6699);
+ color: white;
+ border: none;
+ padding: 12px 30px;
+ border-radius: 25px;
+ font-size: 1rem;
+ font-weight: bold;
+ box-shadow: 0 4px 15px rgba(255, 0, 102, 0.4);
+ cursor: pointer;
+ }
+
+ /* Màn hình 4: Trái tim ghép từ nhiều ảnh */
+ .heart-container {
+ position: relative;
+ width: 320px;
+ height: 320px;
+ margin: 0 auto;
+ }
+
+ .heart-photo {
+ position: absolute;
+ width: 45px;
+ height: 45px;
+ border-radius: 8px;
+ border: 2px solid #fff;
+ object-fit: cover;
+ box-shadow: 0 0 10px rgba(255, 105, 180, 0.8);
+ animation: popIn 0.5s ease forwards;
+ }
+
+ /* Animations */
+ @keyframes fadeIn {
+ from { opacity: 0; transform: scale(0.9); }
+ to { opacity: 1; transform: scale(1); }
+ }
+
+ @keyframes pulse {
+ 0% { transform: scale(1); }
+ 50% { transform: scale(1.08); }
+ 100% { transform: scale(1); }
+ }
+
+ @keyframes popIn {
+ from { transform: scale(0); opacity: 0; }
+ to { transform: scale(1); opacity: 1; }
+ }
+ </style>
+</head>
+<body>
+
+ <canvas id="bg-canvas"></canvas>
+
+ <div class="container">
+ <div id="step-1" class="step active">
+ <div id="countdown-text">3</div>
+ </div>
+
+ <div id="step-2" class="step">
+ <div class="bear-card" onclick="goToStep(3)">
+ <div class="bear-icon"> </div>
+ <h2>HAPPY BIRTHDAY</h2>
+ <p class="tap-hint">Chạm vào đây để mở quà nè </p>
+ </div>
+ </div>
+
+ <div id="step-3" class="step">
+ <div class="card-slider">
+ <div id="message" class="message-box">Chúc mừng sinh nhật em yêu! </div>
+ <div class="photo-grid">
+ <div class="photo-frame"><img id="img1" src="https://picsum.photos/300/400?random=1" alt="Anh 1"></div>
+ <div class="photo-frame"><img id="img2" src="https://picsum.photos/300/400?random=2" alt="Anh 2"></div>
+ </div>
+ <button class="next-btn" onclick="nextSlide()">Tiếp tục ➔</button>
+ </div>
+ </div>
+
+ <div id="step-4" class="step">
+ <h2 style="color: #ff66a3; margin-bottom: 20px; text-shadow: 0 0 10px #ff0066;">Love You Forever </h2>
+ <div id="heart-grid" class="heart-container"></div>
+ </div>
+ </div>
+
+ <script>
+ /* 1. Hiệu ứng Mưa chữ Pink Matrix trên Canvas */
+ const canvas = document.getElementById('bg-canvas');
+ const ctx = canvas.getContext('2d');
+
+ function resizeCanvas() {
+ canvas.width = window.innerWidth;
+ canvas.height = window.innerHeight;
+ }
+ resizeCanvas();
+ window.addEventListener('resize', resizeCanvas);
+
+ const chars = '01101001HAPPYBIRTHDAY10101';
+ const fontSize = 14;
+ const columns = Math.floor(canvas.width / fontSize);
+ const drops = Array(columns).fill(1);
+
+ function drawMatrix() {
+ ctx.fillStyle = 'rgba(5, 2, 10, 0.1)';
+ ctx.fillRect(0, 0, canvas.width, canvas.height);
+ ctx.fillStyle = '#ff3385';
+ ctx.font = fontSize + 'px monospace';
+
+ for (let i = 0; i < drops.length; i++) {
+ const text = chars.charAt(Math.floor(Math.random() * chars.length));
+ ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+ if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+ drops[i] = 0;
+ }
+ drops[i]++;
+ }
+ }
+ setInterval(drawMatrix, 33);
+
+ /* 2. Quản lý các bước chuyển màn hình */
+ function goToStep(stepNumber) {
+ document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+ document.getElementById(`step-${stepNumber}`).classList.add('active');
+ if (stepNumber === 4) {
+ renderHeartPhotos();
+ }
+ }
+
+ /* 3. Logic Đếm ngược tự động ở Bước 1 */
+ const sequence = ["3", "2", "1", "HAPPY", "BIRTHDAY", "TO", "ANITA "];
+ let seqIndex = 0;
+ const countdownEl = document.getElementById('countdown-text');
+
+ const timer = setInterval(() => {
+ seqIndex++;
+ if (seqIndex < sequence.length) {
+ countdownEl.innerText = sequence[seqIndex];
+ } else {
+ clearInterval(timer);
+ goToStep(2);
+ }
+ }, 1000);
+
+ /* 4. Data Lời chúc & Ảnh cho Bước 3 */
+ const slides = [
+ {
+ msg: "Chúc mừng sinh nhật em yêu! ",
+ img1: "https://picsum.photos/300/400?random=1",
+ img2: "https://picsum.photos/300/400?random=2"
+ },
+ {
+ msg: "Chỉ cần em luôn mỉm cười, anh cũng cảm thấy hạnh phúc! ",
+ img1: "https://picsum.photos/300/400?random=3",
+ img2: "https://picsum.photos/300/400?random=4"
+ }
+ ];
+ let currentSlide = 0;
+
+ function nextSlide() {
+ currentSlide++;
+ if (currentSlide < slides.length) {
+ document.getElementById('message').innerText = slides[currentSlide].msg;
+ document.getElementById('img1').src = slides[currentSlide].img1;
+ document.getElementById('img2').src = slides[currentSlide].img2;
+ } else {
+ goToStep(4);
+ }
+ }
+
+ /* 5. Tính toán tọa độ ghép Ảnh thành hình Trái tim (Bước 4) */
+ function renderHeartPhotos() {
+ const heartGrid = document.getElementById('heart-grid');
+ heartGrid.innerHTML = '';
+ const totalPoints = 16; 
+ 
+ // Công thức toán học Parametric Heart
+ for (let i = 0; i < totalPoints; i++) {
+ const t = (i / totalPoints) * Math.PI * 2;
+ const x = 16 * Math.pow(Math.sin(t), 3);
+ const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+ 
+ // Scale & Chuyển tọa độ vào khung 320x320
+ const posX = 140 + x * 7.5;
+ const posY = 130 + y * 7.5;
+
+ const img = document.createElement('img');
+ img.className = 'heart-photo';
+ img.src = `https://picsum.photos/100/100?random=${i + 10}`;
+ img.style.left = `${posX}px`;
+ img.style.top = `${posY}px`;
+ img.style.animationDelay = `${i * 0.1}s`;
+
+ heartGrid.appendChild(img);
+ }
+ }
+ </script>
+</body>
+</html>
