@@ -450,11 +450,11 @@ const IMAGE_SOURCES = [
 const MUSIC_FILE = "nhac.mp3";
 
 const CONFIG = {
-    words: 105,
+    words: 50,
     hearts: 15,
 
     minZ: -500,
-    maxZ: 430,
+    maxZ: 200,
 
     /* 1. ĐIỀU CHỈNH TỐC ĐỘ RƠI (px/giây) */
     wordSpeed: [30, 40],   /* Tốc độ rơi của chữ [tối thiểu, tối đa] */
@@ -621,7 +621,7 @@ for(let i=0; i<CONFIG.hearts; i++){
 }
 
 // Thêm các ảnh lặp lại ngẫu nhiên từ danh sách IMAGE_SOURCES để tạo hiệu ứng rơi phong phú
-for(let i=0; i<15; i++){
+for(let i=0; i<30; i++){
     addPhoto(pick(IMAGE_SOURCES));
 }
 
