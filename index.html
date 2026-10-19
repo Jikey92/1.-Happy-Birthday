@@ -450,11 +450,11 @@ const IMAGE_SOURCES = [
 const MUSIC_FILE = "nhac.mp3";
 
 const CONFIG = {
-    words: 50,
+    words: 30,
     hearts: 15,
 
     minZ: -500,
-    maxZ: 200,
+    maxZ: 100,
 
     /* 1. ĐIỀU CHỈNH TỐC ĐỘ RƠI (px/giây) */
     wordSpeed: [30, 40],   /* Tốc độ rơi của chữ [tối thiểu, tối đa] */
@@ -463,11 +463,11 @@ const CONFIG = {
 
     /* 2. ĐIỀU CHỈNH KÍCH THƯỚC CHỮ TỐI ĐA, TỐI THIỂU (Hiệu ứng xa, gần) */
     minWordScale: 0.4,     /* Kích thước chữ ở vị trí xa nhất */
-    maxWordScale: 0.4,     /* Kích thước chữ ở vị trí gần nhất */
+    maxWordScale: 0.1,     /* Kích thước chữ ở vị trí gần nhất */
 
     /* 3. ĐIỀU CHỈNH KÍCH THƯỚC ẢNH TỐI ĐA, TỐI THIỂU (Hiệu ứng xa, gần) */
     minPhotoScale: 0.5,    /* Kích thước ảnh ở vị trí xa nhất */
-    maxPhotoScale: 0.5     /* Kích thước ảnh ở vị trí gần nhất */
+    maxPhotoScale: 0.1     /* Kích thước ảnh ở vị trí gần nhất */
 };
 
 const objects = [];
@@ -621,7 +621,7 @@ for(let i=0; i<CONFIG.hearts; i++){
 }
 
 // Thêm các ảnh lặp lại ngẫu nhiên từ danh sách IMAGE_SOURCES để tạo hiệu ứng rơi phong phú
-for(let i=0; i<30; i++){
+for(let i=0; i<40; i++){
     addPhoto(pick(IMAGE_SOURCES));
 }
 
