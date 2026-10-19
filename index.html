@@ -207,9 +207,11 @@ body{touch-action:manipulation}
    ========================================================== */
 
 .photo{
-    width:150px;
-    height:205px;
-    object-fit:cover;
+    width:180px;
+    height:auto;
+    max-width:calc(100vw - 24px);
+    max-height:70vh;
+    object-fit:contain;
     border:1px solid rgba(255,255,255,.65);
     border-radius:1px;
 
@@ -535,19 +537,17 @@ const CONFIG = {
     maxZ: 430,
 
     /* TỐC ĐỘ RƠI (px/giây): tăng số để rơi nhanh hơn */
-    wordSpeed: [30, 35],
-    heartSpeed: [32, 40],
-    photoSpeed: [30, 35],
+    wordSpeed: [42, 88],
+    heartSpeed: [70, 125],
+    photoSpeed: [30, 55],
 
     /* KÍCH THƯỚC CHỮ NHỎ NHẤT / LỚN NHẤT (px) */
-    wordSizeMin: 5,
-    wordSizeMax: 10,
+    wordSizeMin: 13,
+    wordSizeMax: 58,
 
-    /* KÍCH THƯỚC ẢNH NHỎ NHẤT / LỚN NHẤT (px) */
-    photoWidthMin: 25,
-    photoWidthMax: 52,
-    photoHeightMin: 34,
-    photoHeightMax: 74
+    /* KÍCH THƯỚC ẢNH: chiều rộng gốc (px), chiều cao tự theo tỷ lệ ảnh */
+    photoWidthMin: 150,
+    photoWidthMax: 250
 };
 
 const objects = [];
@@ -583,7 +583,7 @@ function depthInfo(z){
      * Gần -> lớn + sáng
      */
     return {
-        scale: .9 + Math.pow(n,1.45)*1,
+        scale: .9 + Math.pow(n,1.45)*1.1,
         opacity: .55 + n*.45
     };
 }
@@ -693,15 +693,13 @@ function addPhoto(src){
     e.onerror = () => e.remove();
 
     /*
-     * Kích thước GỐC.
-     * Sau đó Z sẽ scale ảnh:
-     * xa -> nhỏ
-     * gần -> lớn
+     * Chỉ đặt chiều rộng; chiều cao tự tính theo tỷ lệ gốc của ảnh.
+     * Giới hạn kích thước để ảnh không vượt quá vùng nhìn.
      */
-    const photoWidth = rnd(CONFIG.photoWidthMin, CONFIG.photoWidthMax);
-    const photoHeight = rnd(CONFIG.photoHeightMin, CONFIG.photoHeightMax);
-    e.style.width = photoWidth + "px";
-    e.style.height = photoHeight + "px";
+    e.style.width = rnd(CONFIG.photoWidthMin, CONFIG.photoWidthMax) + "px";
+    e.style.height = "auto";
+    e.style.maxWidth = "calc(100vw - 24px)";
+    e.style.maxHeight = "70vh";
 
     falling.appendChild(e);
 
@@ -781,9 +779,9 @@ function recycle(o){
         o.drift = rnd(-1.8,1.8);
         o.alpha = rnd(.82,1);
 
-        /* Random lại kích thước ảnh mỗi vòng rơi */
+        /* Đổi chiều rộng mỗi vòng; chiều cao giữ đúng tỷ lệ ảnh */
         o.e.style.width = rnd(CONFIG.photoWidthMin, CONFIG.photoWidthMax) + "px";
-        o.e.style.height = rnd(CONFIG.photoHeightMin, CONFIG.photoHeightMax) + "px";
+        o.e.style.height = "auto";
 
         /* Đổi ngẫu nhiên ảnh ở vòng rơi tiếp theo */
         if (IMAGE_SOURCES.length) {
@@ -819,13 +817,23 @@ function animate(t){
 
         const d = o.depth;
 
-        const x =
+        let x =
             o.x/100 *
             falling.clientWidth;
 
         const y =
             o.y/100 *
             falling.clientHeight;
+
+        /* Giữ toàn bộ ảnh trong khung nhìn theo chiều ngang,
+           kể cả khi phóng to theo chiều sâu. */
+        if (o.type === "photo") {
+            const viewWidth = falling.clientWidth;
+            const renderedWidth = (o.e.getBoundingClientRect().width || o.e.offsetWidth || 180) * d.scale;
+            const halfWidth = Math.min(renderedWidth / 2, Math.max(0, viewWidth / 2 - 2));
+            x = Math.max(halfWidth + 2, Math.min(viewWidth - halfWidth - 2, x));
+            o.x = viewWidth ? (x / viewWidth) * 100 : 50;
+        }
 
         o.e.style.opacity =
             o.alpha * d.opacity;
