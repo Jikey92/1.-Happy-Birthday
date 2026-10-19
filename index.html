@@ -534,10 +534,20 @@ const CONFIG = {
     minZ: -500,
     maxZ: 430,
 
-    /* px/giây */
-    wordSpeed: [42, 88],
-    heartSpeed: [70, 125],
-    photoSpeed: [30, 55]
+    /* TỐC ĐỘ RƠI (px/giây): tăng số để rơi nhanh hơn */
+    wordSpeed: [30, 35],
+    heartSpeed: [32, 40],
+    photoSpeed: [30, 35],
+
+    /* KÍCH THƯỚC CHỮ NHỎ NHẤT / LỚN NHẤT (px) */
+    wordSizeMin: 13,
+    wordSizeMax: 20,
+
+    /* KÍCH THƯỚC ẢNH NHỎ NHẤT / LỚN NHẤT (px) */
+    photoWidthMin: 75,
+    photoWidthMax: 158,
+    photoHeightMin: 103,
+    photoHeightMax: 223
 };
 
 const objects = [];
@@ -574,7 +584,7 @@ function depthInfo(z){
      */
     return {
         scale: .9 + Math.pow(n,1.45)*1.1,
-        opacity: 9 + n*.3
+        opacity: .55 + n*.45
     };
 }
 
@@ -587,15 +597,6 @@ function addWord(){
 
     const e = document.createElement("div");
 
-    const r = Math.random();
-
-    let sizeClass;
-
-    if(r < .035) sizeClass = "huge";
-    else if(r < .22) sizeClass = "big";
-    else if(r < .72) sizeClass = "medium";
-    else sizeClass = "small";
-
     const colorClass =
         Math.random() < .18
         ? "pink"
@@ -603,7 +604,8 @@ function addWord(){
             ? "blue"
             : "white";
 
-    e.className = "item word " + sizeClass + " " + colorClass;
+    e.className = "item word " + colorClass;
+    e.style.fontSize = rnd(CONFIG.wordSizeMin, CONFIG.wordSizeMax) + "px";
     e.textContent = pick(WORDS);
 
     falling.appendChild(e);
@@ -696,17 +698,10 @@ function addPhoto(src){
      * xa -> nhỏ
      * gần -> lớn
      */
-    const r = Math.random();
-
-    if(r < .12){
-        e.classList.add("hero-photo");
-    }
-    else if(r < .38){
-        e.classList.add("large-photo");
-    }
-    else if(r < .70){
-        e.classList.add("medium-photo");
-    }
+    const photoWidth = rnd(CONFIG.photoWidthMin, CONFIG.photoWidthMax);
+    const photoHeight = rnd(CONFIG.photoHeightMin, CONFIG.photoHeightMax);
+    e.style.width = photoWidth + "px";
+    e.style.height = photoHeight + "px";
 
     falling.appendChild(e);
 
@@ -773,6 +768,8 @@ function recycle(o){
         o.speed = rnd(...CONFIG.wordSpeed);
         o.drift = rnd(-2.5,2.5);
         o.alpha = rnd(.72,1);
+        o.e.style.fontSize = rnd(CONFIG.wordSizeMin, CONFIG.wordSizeMax) + "px";
+        o.e.textContent = pick(WORDS);
     }
     else if(o.type === "heart"){
         o.speed = rnd(...CONFIG.heartSpeed);
@@ -783,6 +780,15 @@ function recycle(o){
         o.speed = rnd(...CONFIG.photoSpeed);
         o.drift = rnd(-1.8,1.8);
         o.alpha = rnd(.82,1);
+
+        /* Random lại kích thước ảnh mỗi vòng rơi */
+        o.e.style.width = rnd(CONFIG.photoWidthMin, CONFIG.photoWidthMax) + "px";
+        o.e.style.height = rnd(CONFIG.photoHeightMin, CONFIG.photoHeightMax) + "px";
+
+        /* Đổi ngẫu nhiên ảnh ở vòng rơi tiếp theo */
+        if (IMAGE_SOURCES.length) {
+            o.e.src = pick(IMAGE_SOURCES);
+        }
     }
 }
 
@@ -898,6 +904,7 @@ const music = document.getElementById("music");
 const startBtn = document.getElementById("startBtn");
 
 music.src = MUSIC_FILE;
+music.loop = true; // Tự phát lại từ đầu khi bài nhạc kết thúc
 
 let started = false;
 
