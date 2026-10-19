@@ -450,24 +450,24 @@ const IMAGE_SOURCES = [
 const MUSIC_FILE = "nhac.mp3";
 
 const CONFIG = {
-    words: 105,
+    words: 90,
     hearts: 15,
 
     minZ: -500,
-    maxZ: 430,
+    maxZ: 250,
 
     /* 1. ĐIỀU CHỈNH TỐC ĐỘ RƠI (px/giây) */
-    wordSpeed: [42, 88],   /* Tốc độ rơi của chữ [tối thiểu, tối đa] */
-    heartSpeed: [70, 125], /* Tốc độ rơi của tim [tối thiểu, tối đa] */
-    photoSpeed: [30, 55],  /* Tốc độ rơi của ảnh [tối thiểu, tối đa] */
+    wordSpeed: [50, 60],   /* Tốc độ rơi của chữ [tối thiểu, tối đa] */
+    heartSpeed: [50, 60], /* Tốc độ rơi của tim [tối thiểu, tối đa] */
+    photoSpeed: [50, 60],  /* Tốc độ rơi của ảnh [tối thiểu, tối đa] */
 
     /* 2. ĐIỀU CHỈNH KÍCH THƯỚC CHỮ TỐI ĐA, TỐI THIỂU (Hiệu ứng xa, gần) */
-    minWordScale: 0.4,     /* Kích thước chữ ở vị trí xa nhất */
-    maxWordScale: 2.2,     /* Kích thước chữ ở vị trí gần nhất */
+    minWordScale: 0.7,     /* Kích thước chữ ở vị trí xa nhất */
+    maxWordScale: 1,     /* Kích thước chữ ở vị trí gần nhất */
 
     /* 3. ĐIỀU CHỈNH KÍCH THƯỚC ẢNH TỐI ĐA, TỐI THIỂU (Hiệu ứng xa, gần) */
-    minPhotoScale: 0.5,    /* Kích thước ảnh ở vị trí xa nhất */
-    maxPhotoScale: 2.0     /* Kích thước ảnh ở vị trí gần nhất */
+    minPhotoScale: 0.8,    /* Kích thước ảnh ở vị trí xa nhất */
+    maxPhotoScale: 1     /* Kích thước ảnh ở vị trí gần nhất */
 };
 
 const objects = [];
@@ -499,7 +499,7 @@ function depthInfo(z, type){
 
     return {
         scale: scale,
-        opacity: 0.2 + n * 0.8
+        opacity: 0.5 + n * 0.8
     };
 }
 
