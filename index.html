@@ -183,14 +183,13 @@ body{touch-action:manipulation}
 
 .photo{
     width:160px;
-    height:220px;
-    object-fit:cover;
-    border: none;       
-    box-shadow: none;   
-    background: transparent;
-
-    
-
+    height:auto;
+    max-width:32vw;
+    max-height:32vh;
+    object-fit:contain;
+    border:none;
+    box-shadow:none;
+    background:transparent;
 }
 
 .message{
@@ -264,6 +263,19 @@ body{touch-action:manipulation}
 }
 
 @media (max-width:600px){
+    /* Tối ưu cho điện thoại: giảm glow và hiệu ứng tốn GPU */
+    .word{
+        text-shadow: 0 0 2px currentColor, 0 0 5px currentColor;
+    }
+    .heart{
+        text-shadow: 0 0 3px #ff3a20, 0 0 8px rgba(255,55,20,.45);
+    }
+    .photo{
+        box-shadow:none;
+    }
+    .item{
+        will-change:transform,opacity;
+    }
     #startBtn{
         min-width:145px;
         min-height:60px;
@@ -338,7 +350,9 @@ function resizeMatrix(){
 resizeMatrix();
 addEventListener("resize",resizeMatrix);
 
+let matrixActive = true;
 function matrix(){
+    if(!matrixActive) return;
 
     ctx.fillStyle="rgba(0,0,0,.13)";
     ctx.fillRect(0,0,W,H);
@@ -476,6 +490,7 @@ const CONFIG = {
 };
 
 const objects = [];
+const isMobileDevice = matchMedia("(max-width: 600px)").matches;
 
 function rnd(a,b){
     return a + Math.random() * (b-a);
@@ -617,18 +632,16 @@ function addPhoto(src){
 }
 
 /* Khởi tạo các đối tượng */
-for(let i=0; i<CONFIG.words; i++){
-    addWord();
-}
+// Điện thoại có ít vật thể hơn để giữ khung hình ổn định.
+const wordCount = isMobileDevice ? 42 : CONFIG.words;
+const heartCount = isMobileDevice ? 7 : CONFIG.hearts;
+const photoCount = isMobileDevice ? 7 : 15;
 
-for(let i=0; i<CONFIG.hearts; i++){
-    addHeart();
-}
+for(let i=0; i<wordCount; i++) addWord();
+for(let i=0; i<heartCount; i++) addHeart();
 
-// Thêm các ảnh lặp lại ngẫu nhiên từ danh sách IMAGE_SOURCES để tạo hiệu ứng rơi phong phú
-for(let i=0; i<15; i++){
-    addPhoto(pick(IMAGE_SOURCES));
-}
+// Thêm ảnh lặp lại; số lượng được giảm trên điện thoại để giảm tải.
+for(let i=0; i<photoCount; i++) addPhoto(pick(IMAGE_SOURCES));
 
 /* ==========================================================
    RECYCLE — TÁI SỬ DỤNG KHI RƠI XUỐNG ĐÁY (LẶP LẠI LIÊN TỤC)
@@ -666,7 +679,7 @@ function recycle(o){
 let last = performance.now();
 
 function animate(t){
-    const dt = Math.min(.032, (t-last)/1000);
+    const dt = Math.min(0.05, Math.max(0, (t-last)/1000));
     last = t;
 
     for(const o of objects){
@@ -683,12 +696,14 @@ function animate(t){
 
         o.e.style.opacity = o.alpha * d.opacity;
 
+        // Xoay 3D nhẹ hơn trên điện thoại để giảm giật.
+        const mobile = isMobileDevice;
         o.e.style.transform = `
             translate3d(${x}px,${y}px,${o.z}px)
             translate(-50%,-50%)
-            rotateX(${o.rx}deg)
-            rotateY(${o.ry}deg)
-            rotateZ(${o.rz}deg)
+            rotateX(${mobile ? 0 : o.rx}deg)
+            rotateY(${mobile ? 0 : o.ry}deg)
+            rotateZ(${mobile ? o.rz * 0.35 : o.rz}deg)
             scale(${d.scale})
         `;
 
@@ -715,13 +730,23 @@ function buildScene(){
     }
 }
 
+let animationRunning = false;
 function startBirthday(){
+    matrixActive = false;
     document.getElementById("countdown").style.display = "none";
     birthdayScene.style.display = "flex";
     buildScene();
     last = performance.now();
-    requestAnimationFrame(animate);
+    if(!animationRunning){
+        animationRunning = true;
+        requestAnimationFrame(animate);
+    }
 }
+
+document.addEventListener("visibilitychange", () => {
+    // Khi quay lại tab, đặt lại mốc thời gian để vật thể không nhảy vọt.
+    last = performance.now();
+});
 
 const music = document.getElementById("music");
 const startBtn = document.getElementById("startBtn");
